@@ -17,12 +17,13 @@ module Game
       get_cards.shuffle
     end
 
-    def face_up_initial_cards
-      @deck = @deck - @deck[0..11]
+    def face_up_cards
+      @deck -= @deck[0..11]
       @deck[0..11]
     end
 
-    def new_face_up_cards
+    def add_new_face_up_cards
+      @deck -= @deck[0..2]
       @deck[0..2]
     end
   end

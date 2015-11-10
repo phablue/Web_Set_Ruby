@@ -5,16 +5,21 @@ module Game
     attr_accessor :deck
 
     def initialize
-      @deck = get_cards
+      @deck = shuffled_cards
     end
 
     def get_cards
       file = File.read("cards.json")
-      JSON.parse(file)
+      JSON.parse(file).shuffle!
     end
 
-    def face_up_cards
-      @deck.sample(12)
+    def shuffled_cards
+      get_cards.shuffle
+    end
+
+    def face_up_initial_cards
+      @deck = @deck - @deck[0..11]
+      @deck[0..11]
     end
   end
 end

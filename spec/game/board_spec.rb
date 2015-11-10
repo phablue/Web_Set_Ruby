@@ -5,18 +5,22 @@ describe Game::Board do
     @board = Game::Board.new
   end
 
-  it "Deck size is 81, when successed reading JSON file" do
-    expected = 81
+  it "The number of deck cards is 81, when successed reading JSON file" do
     actual = @board.deck.size
 
-    expect(actual).to eq expected
+    expect(actual).to eq 81
   end
 
-  it "Face up cards are totall 12 and included within the deck, when successed picking from the deck" do
-    expected = 12
-    actual = @board.face_up_cards
+  it "The number of faced up initial cards is 12 and included within the deck, when successed picking from the deck" do
+    actual = @board.face_up_initial_cards
 
-    expect(actual.size).to eq expected
+    expect(actual.size).to eq 12
     actual.each { |card| expect(@board.deck).to include card }
+  end
+
+  it "The number of deck cards is 69, when after faced up initial cards" do
+    actual = @board.deck.size
+
+    expect{ @board.face_up_initial_cards }.to change{ actual }.to( 69 ).from( 81 )
   end
 end

@@ -19,8 +19,6 @@ describe Game::Board do
   end
 
   it "The number of deck cards is 69, when after faced up initial cards" do
-    actual = @board.deck.size
-
-    expect{ @board.face_up_initial_cards }.to change{ actual }.to( 69 ).from( 81 )
+    expect{ @board.face_up_initial_cards }.to change{ @board.deck.size }.to( 69 ).from( 81 )
   end
 end

@@ -21,5 +21,9 @@ module Game
       @deck = @deck - @deck[0..11]
       @deck[0..11]
     end
+
+    def new_face_up_cards
+      @deck[0..2]
+    end
   end
 end

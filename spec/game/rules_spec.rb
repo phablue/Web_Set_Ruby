@@ -1,6 +1,10 @@
 require "spec_helper"
 
 describe Game::Rules do
+  before(:each) do
+    @rules = Game::Rules.new
+  end
+
   context "Check board of cards have 'set'" do
     it "Return 'true', when face-up cards have 'set'" do
       face_up_cards = [ {"color"=>"R", "shape"=>"S", "shading"=>"E", "number"=>"3"},
@@ -16,9 +20,7 @@ describe Game::Rules do
                         {"color"=>"G", "shape"=>"D", "shading"=>"F", "number"=>"3"},
                         {"color"=>"P", "shape"=>"S", "shading"=>"E", "number"=>"2"} ]
 
-      rules = Game::Rules.new(face_up_cards)
-
-      expect(rules.has_set?).to be true
+      expect(@rules.has_set?(face_up_cards)).to be true
     end
 
     it "Return 'true', when face-up cards have 'set'" do
@@ -35,9 +37,7 @@ describe Game::Rules do
                         {"color"=>"G", "shape"=>"S", "shading"=>"S", "number"=>"1"},
                         {"color"=>"G", "shape"=>"D", "shading"=>"F", "number"=>"1"} ]
 
-      rules = Game::Rules.new(face_up_cards)
-
-      expect(rules.has_set?).to be true
+      expect(@rules.has_set?(face_up_cards)).to be true
     end
 
     it "Return 'false', when face-up cards dont have 'set'" do
@@ -54,9 +54,7 @@ describe Game::Rules do
                         {"color"=>"R", "shape"=>"S", "shading"=>"F", "number"=>"3"},
                         {"color"=>"R", "shape"=>"S", "shading"=>"S", "number"=>"3"} ]
 
-      rules = Game::Rules.new(face_up_cards)
-
-      expect(rules.has_set?).to be false
+      expect(@rules.has_set?(face_up_cards)).to be false
     end
   end
 
@@ -75,8 +73,7 @@ describe Game::Rules do
                         {"color"=>"G", "shape"=>"D", "shading"=>"F", "number"=>"3"},
                         {"color"=>"P", "shape"=>"S", "shading"=>"E", "number"=>"2"} ]
 
-      @rules = Game::Rules.new(face_up_cards)
-      @rules.has_set?
+      @rules.has_set?(face_up_cards)
     end
 
     it "Return 'true', when a user choie is set" do

@@ -1,28 +1,27 @@
 module Game
   class Rules
-    def initialize(board)
-      @board = board
+    def initialize
       @sets = []
     end
 
-    def has_set?
+    def has_set?(board)
       attributes = { "color" => "GPR", "shape" => "DOS", "shading" => "EFS", "number" => "123" }
       standard = Hash.new
 
       for i in 0...12
         for j in (i + 1)...12
           attributes.each_pair do | key, value |
-            if @board[i][key] == @board[j][key]
-              standard[key] = @board[i][key]
+            if board[i][key] == board[j][key]
+              standard[key] = board[i][key]
             else
-              standard[key] = value.delete(@board[i][key] + @board[j][key])
+              standard[key] = value.delete(board[i][key] + board[j][key])
             end
           end
 
-          matches = @board.select{ |card| card == standard }
+          matches = board.select{ |card| card == standard }
 
           unless matches.empty?
-            @sets  << add_matches_keyword(@board[i], @board[j], matches)
+            @sets  << add_matches_keyword(board[i], board[j], matches)
           end
         end
       end

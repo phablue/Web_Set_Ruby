@@ -1,5 +1,6 @@
 require "game/board"
 require "game/rules"
+require "game/play"
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

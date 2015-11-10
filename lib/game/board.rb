@@ -17,7 +17,7 @@ module Game
       get_cards.shuffle
     end
 
-    def face_up_cards
+    def initial_face_up_cards
       @deck -= @deck[0..11]
       @deck[0..11]
     end

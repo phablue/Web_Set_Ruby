@@ -12,13 +12,13 @@ describe Game::Board do
   end
 
   it "The number of faced up initial cards is 12 and included within the deck, when successed picking from the deck" do
-    actual = @board.face_up_cards
+    actual = @board.initial_face_up_cards
 
     expect(actual.size).to eq 12
     actual.each { |card| expect(@board.deck).to include card }
   end
 
   it "The number of deck cards is 69, when after faced up initial cards" do
-    expect{ @board.face_up_cards }.to change{ @board.deck.size }.to( 69 ).from( 81 )
+    expect{ @board.initial_face_up_cards }.to change{ @board.deck.size }.to( 69 ).from( 81 )
   end
 end

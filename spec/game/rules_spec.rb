@@ -2,7 +2,8 @@ require "spec_helper"
 
 describe Game::Rules do
   before(:each) do
-    @rules = Game::Rules.new
+    @board = Game::Board.new
+    @rules = Game::Rules.new(@board)
   end
 
   context "Check board of cards have 'set'" do

@@ -2,7 +2,6 @@ module Game
   class Rules
     def initialize(board)
       @board = board
-      @sets = []
     end
 
     def has_set?(board_cards)
@@ -22,19 +21,27 @@ module Game
           matches = board_cards.select{ |card| card == standard }
 
           unless matches.empty?
-            @sets  << add_matches_keyword(board_cards[i], board_cards[j], matches)
+            return true
           end
         end
       end
-      @sets.size != 0
+      false
     end
 
     def is_set?(chosen_cards)
-      @sets.include?(chosen_cards)
+      for i in 0...4
+        cards_attr = get_attribute(chosen_cards, i)
+        return false unless is_same_or_different?(cards_attr)
+      end
+      true
     end
 
-    def add_matches_keyword(card1, card2, card3)
-      [ card1.values.join, card2.values.join, card3[0].values.join ].to_json
+    def is_same_or_different?(cards_attr)
+      cards_attr.size != 2
+    end
+
+    def get_attribute(cards, attr_index)
+      [ cards[0][attr_index], cards[1][attr_index], cards[2][attr_index] ].uniq.join
     end
   end
 end

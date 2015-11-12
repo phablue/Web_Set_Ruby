@@ -31,7 +31,7 @@ class UI
 
   finishGame: (data) =>
     if data["gameOver"]
-      @notice("Game Over", "Thanks Enjoy The Game")
+      @notice("Game Over", "Thanks for playing.")
       $("[data-id='board-cards']").off("click", "[data-id='face-up']")
       @restartNewGame()
     else
@@ -57,7 +57,7 @@ class UI
 
   resetBoardCardsBySet: (data) =>
     unless data["set"]
-      $.when( @notice("No Set", "Add New Cards") ).done =>
+      $.when( @notice("No Sets on the board", "Dealing again.") ).done =>
         @addNewCard(data)
 
   chooseCard: ->
@@ -81,7 +81,7 @@ class UI
     data = $.parseJSON(data)
 
     if data["set"]
-      $.when(@notice("Set","Switch Set Cards")).done =>
+      $.when(@notice("Set","Dealing new cards.")).done =>
         chosenCards = data["chosenCards"]
 
         @remove(chosenCards)
@@ -89,12 +89,12 @@ class UI
         $.when(@addNewCard(data)).done =>
           @checkGameOver()
     else
-      $.when(@notice("No Set","Please, Keep Look")).done =>
+      $.when(@notice("No Set","Please, keep looking")).done =>
         @resetBorderColor()
 
   addNewCard: (data) ->
     if _.isNull(data["newCards"])
-      @notice("No Cards In Deck", "")
+      @notice("Deck is empty", "")
     else
       _.each( data["newCards"], (card) =>
         @setNewCard(@nameOf(card)) )

@@ -160,9 +160,12 @@
     UI.prototype.notice = function(title, message) {
       $("[data-id='title']").text(title);
       $("[data-id='message']").text(message);
+      return this.flashMessage();
+    };
+
+    UI.prototype.flashMessage = function() {
       if (title === "Game Over") {
-        $("[data-id='notice']").show();
-        return $("[data-id='message']").css("font-size", "3.0em");
+        return $("[data-id='notice']").show().append("<button type='button' class='btn btn-default btn-lg btn-block'> <span class='glyphicon glyphicon-repeat' aria-hidden='true'></span> Game Again </buuton>");
       } else {
         return $("[data-id='notice']").show().fadeOut(3000);
       }

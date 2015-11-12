@@ -105,9 +105,14 @@ class UI
   notice: (title, message) ->
     $("[data-id='title']").text(title)
     $("[data-id='message']").text(message)
+    @flashMessage()
+
+  flashMessage: ->
     if title == "Game Over"
-      $("[data-id='notice']").show()
-      $("[data-id='message']").css("font-size", "3.0em")
+      $("[data-id='notice']").show().append(
+        "<button type='button' class='btn btn-default btn-lg btn-block'>
+          <span class='glyphicon glyphicon-repeat' aria-hidden='true'></span>
+          Game Again </buuton>")
     else
       $("[data-id='notice']").show().fadeOut(3000)
 

@@ -58,7 +58,7 @@
 
     UI.prototype.finishGame = function(data) {
       if (data["gameOver"]) {
-        this.notice("Game Over", "Thanks Enjoy The Game");
+        this.notice("Game Over", "Thanks for playing.");
         $("[data-id='board-cards']").off("click", "[data-id='face-up']");
         return this.restartNewGame();
       } else {
@@ -92,7 +92,7 @@
 
     UI.prototype.resetBoardCardsBySet = function(data) {
       if (!data["set"]) {
-        return $.when(this.notice("No Set", "Add New Cards")).done((function(_this) {
+        return $.when(this.notice("No Sets on the board", "Dealing again.")).done((function(_this) {
           return function() {
             return _this.addNewCard(data);
           };
@@ -126,7 +126,7 @@
     UI.prototype.replaceChosenCardsBySet = function(data) {
       data = $.parseJSON(data);
       if (data["set"]) {
-        return $.when(this.notice("Set", "Switch Set Cards")).done((function(_this) {
+        return $.when(this.notice("Set", "Dealing new cards.")).done((function(_this) {
           return function() {
             var chosenCards;
             chosenCards = data["chosenCards"];
@@ -138,7 +138,7 @@
           };
         })(this));
       } else {
-        return $.when(this.notice("No Set", "Please, Keep Look")).done((function(_this) {
+        return $.when(this.notice("No Set", "Please, keep looking")).done((function(_this) {
           return function() {
             return _this.resetBorderColor();
           };
@@ -148,7 +148,7 @@
 
     UI.prototype.addNewCard = function(data) {
       if (_.isNull(data["newCards"])) {
-        return this.notice("No Cards In Deck", "");
+        return this.notice("Deck is empty", "");
       } else {
         return _.each(data["newCards"], (function(_this) {
           return function(card) {

@@ -3,15 +3,17 @@ require "json"
 require_relative "lib/game/play"
 
 use Rack::Session::Pool
-set :new_game, Game::Play.new
 
 get "/" do
   session.clear
-  session[:game] = settings.new_game
   erb :game
 end
 
 get "/game/start" do
+  session[:game] = Game::Play.new
+end
+
+get "/game/board" do
   game = session[:game]
 
   game.board.face_up_initial_cards
@@ -54,3 +56,8 @@ get "/game/end" do
     { gameOver: false }.to_json
   end
 end
+
+get "/game/restart" do
+  redirect "/"
+end
+

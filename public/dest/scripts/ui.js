@@ -11,7 +11,15 @@
     }
 
     UI.prototype.config = function() {
-      return this.gamePlay();
+      return this.gameStart();
+    };
+
+    UI.prototype.gameStart = function() {
+      return $.get("/game/start").done((function(_this) {
+        return function() {
+          return _this.gamePlay();
+        };
+      })(this));
     };
 
     UI.prototype.gamePlay = function() {
@@ -28,33 +36,50 @@
       return $.getJSON("/game/end").done(this.finishGame);
     };
 
+    UI.prototype.restartNewGame = function() {
+      return $("[data-id='restart-game']").click((function(_this) {
+        return function() {
+          $("[data-id='restart-game']").unbind("click");
+          return $.get("/game/restart").done(function() {
+            return $.when(_this.resetGame()).done(function() {
+              return _this.gameStart();
+            });
+          });
+        };
+      })(this));
+    };
+
+    UI.prototype.resetGame = function() {
+      $("[data-id='board-cards']").children().remove();
+      $("[data-id='dis-card']").children("p").remove();
+      $("[data-id='notice']").hide();
+      return $("[data-id='restart-game']").hide();
+    };
+
     UI.prototype.finishGame = function(data) {
       if (data["gameOver"]) {
         this.notice("Game Over", "Thanks Enjoy The Game");
-        return $("[data-id='board-cards'").off("click", "[data-id='face-up']");
+        $("[data-id='board-cards']").off("click", "[data-id='face-up']");
+        return this.restartNewGame();
       } else {
         return this.checkBoardCardsHasSet();
       }
     };
 
     UI.prototype.displayBoardCards = function() {
-      return $.getJSON("/game/start").done(this.displayInitialCards);
+      return $.getJSON("/game/board").done(this.displayInitialCards);
     };
 
     UI.prototype.displayInitialCards = function(data) {
-      var i;
-      i = data["index"];
       return _.each(data["faceUpCards"], (function(_this) {
         return function(card) {
-          var selector;
-          selector = "[data-num=" + (i += 1) + "]";
-          return _this.setInitialCard(selector, _this.nameOf(card));
+          return _this.setInitialCard(_this.nameOf(card));
         };
       })(this));
     };
 
-    UI.prototype.setInitialCard = function(selector, cardName) {
-      return $(selector).attr("data-name", cardName).css("background-image", "url(/images/" + cardName + ".png)");
+    UI.prototype.setInitialCard = function(cardName) {
+      return $("[data-id='board-cards']").append("<div class='card' data-id='face-up' data-name=" + cardName + " style='background-image: url(/images/" + cardName + ".png);'></div>");
     };
 
     UI.prototype.nameOf = function(card) {
@@ -78,7 +103,7 @@
     UI.prototype.chooseCard = function() {
       var chosenCards;
       chosenCards = [];
-      return $("[data-id='board-cards'").on("click", "[data-id='face-up']", (function(_this) {
+      return $("[data-id='board-cards']").on("click", "[data-id='face-up']", (function(_this) {
         return function(e) {
           var card;
           _this.changeBorderColor(e.currentTarget);
@@ -160,12 +185,13 @@
     UI.prototype.notice = function(title, message) {
       $("[data-id='title']").text(title);
       $("[data-id='message']").text(message);
-      return this.flashMessage();
+      return this.flashMessage(title);
     };
 
-    UI.prototype.flashMessage = function() {
+    UI.prototype.flashMessage = function(title) {
       if (title === "Game Over") {
-        return $("[data-id='notice']").show().append("<button type='button' class='btn btn-default btn-lg btn-block'> <span class='glyphicon glyphicon-repeat' aria-hidden='true'></span> Game Again </buuton>");
+        $("[data-id='notice']").show();
+        return $("[data-id='restart-game']").show();
       } else {
         return $("[data-id='notice']").show().fadeOut(3000);
       }

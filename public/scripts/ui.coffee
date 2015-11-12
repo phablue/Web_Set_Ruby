@@ -2,7 +2,11 @@ class UI
   constructor: ->
 
   config: ->
-    @gamePlay()
+    @gameStart()
+
+  gameStart: ->
+    $.get("/game/start").done =>
+      @gamePlay()
 
   gamePlay: ->
     $.when(@displayBoardCards()).done =>
@@ -12,26 +16,38 @@ class UI
   checkGameOver: ->
     $.getJSON("/game/end").done(@finishGame)
 
+  restartNewGame: ->
+    $("[data-id='restart-game']").click =>
+      $("[data-id='restart-game']").unbind("click")
+      $.get("/game/restart").done =>
+        $.when(@resetGame()).done =>
+          @gameStart()
+
+  resetGame: ->
+    $("[data-id='board-cards']").children().remove()
+    $("[data-id='dis-card']").children("p").remove()
+    $("[data-id='notice']").hide()
+    $("[data-id='restart-game']").hide()
+
   finishGame: (data) =>
     if data["gameOver"]
       @notice("Game Over", "Thanks Enjoy The Game")
-      $("[data-id='board-cards'").off("click", "[data-id='face-up']")
+      $("[data-id='board-cards']").off("click", "[data-id='face-up']")
+      @restartNewGame()
     else
       @checkBoardCardsHasSet()
 
   displayBoardCards: ->
-    $.getJSON("/game/start").done(@displayInitialCards)
+    $.getJSON("/game/board").done(@displayInitialCards)
 
   displayInitialCards: (data) =>
-    i = data["index"]
-
     _.each( data["faceUpCards"], (card) =>
-      selector = "[data-num=#{ i += 1 }]"
-      @setInitialCard(selector, @nameOf(card)) )
+      @setInitialCard(@nameOf(card)) )
 
-  setInitialCard: (selector, cardName) ->
-    $(selector).attr("data-name", cardName)
-               .css("background-image", "url(/images/#{cardName}.png)")
+  setInitialCard: (cardName) ->
+    $("[data-id='board-cards']").append(
+      "<div class='card' data-id='face-up' data-name=#{cardName}
+            style='background-image: url(/images/#{cardName}.png);'></div>")
 
   nameOf: (card) ->
     _.values(card).join("")
@@ -47,7 +63,7 @@ class UI
   chooseCard: ->
     chosenCards = []
 
-    $("[data-id='board-cards'").on("click", "[data-id='face-up']", (e) =>
+    $("[data-id='board-cards']").on("click", "[data-id='face-up']", (e) =>
       @changeBorderColor(e.currentTarget)
 
       card = $(e.currentTarget).data("name")
@@ -86,8 +102,8 @@ class UI
   setNewCard: (cardName) ->
     $("[data-id='board-cards']").append(
       "<div class='card' data-id='face-up' data-name=#{cardName}
-      style='background-image: url(/images/#{cardName}.png);
-             width: 140px; height: 200px'></div>")
+            style='background-image: url(/images/#{cardName}.png);
+                   width: 140px; height: 200px'></div>")
 
   remove: (chosenCards) ->
     _.each(chosenCards, (card) =>
@@ -105,14 +121,12 @@ class UI
   notice: (title, message) ->
     $("[data-id='title']").text(title)
     $("[data-id='message']").text(message)
-    @flashMessage()
+    @flashMessage(title)
 
-  flashMessage: ->
+  flashMessage: (title)->
     if title == "Game Over"
-      $("[data-id='notice']").show().append(
-        "<button type='button' class='btn btn-default btn-lg btn-block'>
-          <span class='glyphicon glyphicon-repeat' aria-hidden='true'></span>
-          Game Again </buuton>")
+      $("[data-id='notice']").show()
+      $("[data-id='restart-game']").show()
     else
       $("[data-id='notice']").show().fadeOut(3000)
 

@@ -69,8 +69,7 @@
       if (!data["set"]) {
         return $.when(this.notice("No Set", "Add New Cards")).done((function(_this) {
           return function() {
-            _this.addNewCard(data);
-            return _this.changeBoardCardSize();
+            return _this.addNewCard(data);
           };
         })(this));
       }
@@ -135,7 +134,7 @@
     };
 
     UI.prototype.setNewCard = function(cardName) {
-      return $("[data-id='board-cards']").append("<div class='card' data-id='face-up' data-name=" + cardName + " style='background-image: url(/images/" + cardName + ".png); width: 190px; height: 250px'></div>");
+      return $("[data-id='board-cards']").append("<div class='card' data-id='face-up' data-name=" + cardName + " style='background-image: url(/images/" + cardName + ".png); width: 140px; height: 200px'></div>");
     };
 
     UI.prototype.remove = function(chosenCards) {
@@ -156,10 +155,6 @@
 
     UI.prototype.resetBorderColor = function() {
       return $("[data-id='face-up']").css("border", "0px");
-    };
-
-    UI.prototype.changeBoardCardSize = function() {
-      return $("[data-id='face-up']").width("-=25").height("-=25");
     };
 
     UI.prototype.notice = function(title, message) {

@@ -43,7 +43,6 @@ class UI
     unless data["set"]
       $.when( @notice("No Set", "Add New Cards") ).done =>
         @addNewCard(data)
-        @changeBoardCardSize()
 
   chooseCard: ->
     chosenCards = []
@@ -88,7 +87,7 @@ class UI
     $("[data-id='board-cards']").append(
       "<div class='card' data-id='face-up' data-name=#{cardName}
       style='background-image: url(/images/#{cardName}.png);
-             width: 190px; height: 250px'></div>")
+             width: 140px; height: 200px'></div>")
 
   remove: (chosenCards) ->
     _.each(chosenCards, (card) =>
@@ -102,9 +101,6 @@ class UI
 
   resetBorderColor: ->
     $("[data-id='face-up']").css("border", "0px")
-
-  changeBoardCardSize: ->
-    $("[data-id='face-up']").width("-=25").height("-=25")
 
   notice: (title, message) ->
     $("[data-id='title']").text(title)

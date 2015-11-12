@@ -2,7 +2,8 @@ require "json"
 
 module Game
   class Board
-    attr_accessor :deck, :board_cards
+    attr_accessor :board_cards
+    attr_reader :deck
 
     def initialize
       @deck = shuffled_cards
@@ -45,7 +46,15 @@ module Game
     end
 
     def remove_from_board(cards)
-      @board_cards -= cards
+      @board_cards -= convert_to_hash(cards)
+    end
+
+    def convert_to_hash(cards)
+      convert = []
+      cards.each do |card|
+        convert << { "color" => card[0], "shape" => card[1], "shading" => card[2], "number" => card[3] }
+      end
+      convert
     end
   end
 end

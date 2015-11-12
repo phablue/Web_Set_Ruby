@@ -7,6 +7,7 @@
       this.replaceChosenCardsBySet = bind(this.replaceChosenCardsBySet, this);
       this.resetBoardCardsBySet = bind(this.resetBoardCardsBySet, this);
       this.displayInitialCards = bind(this.displayInitialCards, this);
+      this.finishGame = bind(this.finishGame, this);
     }
 
     UI.prototype.config = function() {
@@ -21,6 +22,19 @@
           });
         };
       })(this));
+    };
+
+    UI.prototype.checkGameOver = function() {
+      return $.getJSON("/game/end").done(this.finishGame);
+    };
+
+    UI.prototype.finishGame = function(data) {
+      if (data["gameOver"]) {
+        this.notice("Game Over", "Thanks Enjoy The Game");
+        return $("[data-id='board-cards'").off("click", "[data-id='face-up']");
+      } else {
+        return this.checkBoardCardsHasSet();
+      }
     };
 
     UI.prototype.displayBoardCards = function() {
@@ -63,19 +77,16 @@
     };
 
     UI.prototype.chooseCard = function() {
-      var chosenCards, limit;
-      limit = 0;
+      var chosenCards;
       chosenCards = [];
       return $("[data-id='board-cards'").on("click", "[data-id='face-up']", (function(_this) {
         return function(e) {
           var card;
-          limit += 1;
           _this.changeBorderColor(e.currentTarget);
           card = $(e.currentTarget).data("name");
           chosenCards.push(card);
-          if (limit === 3) {
+          if (chosenCards.length === 3) {
             _this.checkIsSet(chosenCards);
-            limit = 0;
             return chosenCards = [];
           }
         };
@@ -97,8 +108,8 @@
             chosenCards = data["chosenCards"];
             _this.remove(chosenCards);
             _this.recordInDisCards(chosenCards);
-            return $.when(_this.addNewCard(data)).done(function() {
-              return _this.checkBoardCardsHasSet();
+            return $.when(_this.addNewCard(chosenCards)).done(function() {
+              return _this.checkGameOver();
             });
           };
         })(this));
@@ -112,11 +123,15 @@
     };
 
     UI.prototype.addNewCard = function(data) {
-      return _.each(data["newCards"], (function(_this) {
-        return function(card) {
-          return _this.setNewCard(_this.nameOf(card));
-        };
-      })(this));
+      if (_.isNull(data["newCards"])) {
+        return _.each(data["newCards"], (function(_this) {
+          return function(card) {
+            return _this.setNewCard(_this.nameOf(card));
+          };
+        })(this));
+      } else {
+        return this.notice("No Cards In Deck", "");
+      }
     };
 
     UI.prototype.setNewCard = function(cardName) {
@@ -150,7 +165,12 @@
     UI.prototype.notice = function(title, message) {
       $("[data-id='title']").text(title);
       $("[data-id='message']").text(message);
-      return $("[data-id='notice']").show().fadeOut(4000);
+      if (title === "Game Over") {
+        $("[data-id='notice']").show();
+        return $("[data-id='message']").css("font-size", "3.0em");
+      } else {
+        return $("[data-id='notice']").show().fadeOut(3000);
+      }
     };
 
     return UI;

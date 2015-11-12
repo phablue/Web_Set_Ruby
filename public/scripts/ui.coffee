@@ -5,9 +5,19 @@ class UI
     @gamePlay()
 
   gamePlay: ->
-    $.when( @displayBoardCards() ).done =>
+    $.when(@displayBoardCards()).done =>
       $.when(@checkBoardCardsHasSet()).done =>
         @chooseCard()
+
+  checkGameOver: ->
+    $.getJSON("/game/end").done(@finishGame)
+
+  finishGame: (data) =>
+    if data["gameOver"]
+      @notice("Game Over", "Thanks Enjoy The Game")
+      $("[data-id='board-cards'").off("click", "[data-id='face-up']")
+    else
+      @checkBoardCardsHasSet()
 
   displayBoardCards: ->
     $.getJSON("/game/start").done(@displayInitialCards)
@@ -36,20 +46,16 @@ class UI
         @changeBoardCardSize()
 
   chooseCard: ->
-    limit = 0
     chosenCards = []
 
     $("[data-id='board-cards'").on("click", "[data-id='face-up']", (e) =>
-      limit += 1
-
       @changeBorderColor(e.currentTarget)
 
       card = $(e.currentTarget).data("name")
       chosenCards.push(card)
 
-      if (limit) == 3
+      if (chosenCards.length) == 3
         @checkIsSet(chosenCards)
-        limit = 0
         chosenCards = []
     )
 
@@ -65,15 +71,18 @@ class UI
 
         @remove(chosenCards)
         @recordInDisCards(chosenCards)
-        $.when(@addNewCard(data)).done =>
-          @checkBoardCardsHasSet()
+        $.when(@addNewCard(chosenCards)).done =>
+          @checkGameOver()
     else
       $.when(@notice("No Set","Please, Keep Look")).done =>
         @resetBorderColor()
 
   addNewCard: (data) ->
-    _.each( data["newCards"], (card) =>
-      @setNewCard(@nameOf(card)) )
+    if _.isNull(data["newCards"])
+      _.each( data["newCards"], (card) =>
+        @setNewCard(@nameOf(card)) )
+    else
+      @notice("No Cards In Deck", "")
 
   setNewCard: (cardName) ->
     $("[data-id='board-cards']").append(
@@ -100,6 +109,10 @@ class UI
   notice: (title, message) ->
     $("[data-id='title']").text(title)
     $("[data-id='message']").text(message)
-    $("[data-id='notice']").show().fadeOut(4000)
+    if title == "Game Over"
+      $("[data-id='notice']").show()
+      $("[data-id='message']").css("font-size", "3.0em")
+    else
+      $("[data-id='notice']").show().fadeOut(3000)
 
 window.UI = UI

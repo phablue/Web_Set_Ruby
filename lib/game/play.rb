@@ -8,7 +8,7 @@ module Game
 
     def initialize
       @board = Game::Board.new
-      @rules = Gane::Board.new(@board)
+      @rules = Game::Rules.new(@board)
     end
   end
 end

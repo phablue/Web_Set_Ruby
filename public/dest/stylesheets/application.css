@@ -1,0 +1,62 @@
+@import url("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css");
+@import url(https://fonts.googleapis.com/css?family=Sarpanch:400,700,900);
+body {
+  font-family: "Sarpanch", sans-serif;
+  background-color: #777;
+  text-align: center; }
+
+h1 {
+  color: #EEE;
+  font-weight: 900;
+  text-shadow: 3px 3px 3px #333; }
+
+.board {
+  margin: 30px auto; }
+
+.cards, .deck, .face-up-cards .card, .dead-cards {
+  background-color: #FFF;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  border-radius: 10px;
+  box-shadow: 6px 6px 5px #333;
+  height: 250px;
+  padding: 5px;
+  width: 190px; }
+
+.deck {
+  background-image: url("/images/card-back-img.png");
+  box-shadow: 6px 6px 10px #333;
+  position: absolute;
+  right: 100px;
+  top: 150px; }
+
+.face-up-cards .card {
+  display: inline-block;
+  margin: 10px 20px; }
+  .face-up-cards .card:hover {
+    cursor: pointer; }
+
+.dead-cards {
+  position: absolute;
+  right: 100px;
+  top: 600px; }
+
+.notice {
+  background-color: rgba(0, 0, 0, 0.9);
+  display: none;
+  height: 300px;
+  margin: 200px auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 50%; }
+  .notice h1 {
+    font-size: 8em;
+    margin-top: 25px; }
+  .notice h2 {
+    color: #DDD;
+    font-size: 6em; }
+
+/*# sourceMappingURL=application.css.map */

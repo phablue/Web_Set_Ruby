@@ -1,0 +1,66 @@
+body
+  font-family: 'Sarpanch', sans-serif
+  background-color: $body-bg-color
+  text-align: center
+
+
+h1
+  color: $title-color
+  font-weight: 900
+  text-shadow: 3px 3px 3px $title-shadow-color
+
+.board
+  margin: 30px auto
+
+.cards
+  background-color: $card-bg-color
+  background-position: center
+  background-repeat: no-repeat
+  background-size: contain
+  border-radius: 10px
+  box-shadow: 6px 6px 5px $card-shadow-color
+  height: 250px
+  padding: 5px
+  width: 190px
+
+.deck
+  @extend .cards
+  background-image: url("/images/card-back-img.png")
+  box-shadow: 6px 6px 10px $card-shadow-color
+  position: absolute
+  right: 100px
+  top: 150px
+
+.face-up-cards
+  .card
+    @extend .cards
+    display: inline-block
+    margin: 10px 20px
+
+    &:hover
+      cursor: pointer
+
+.dead-cards
+  @extend .cards
+  position: absolute
+  right: 100px
+  top: 600px
+
+.notice
+  background-color: $notice-bg-color
+  display: none
+  height: 300px
+  margin: 200px auto
+  position: fixed
+  top: 0
+  left: 0
+  right: 0
+  width: 50%
+
+  h1
+    font-size: 8em
+    margin-top: 25px
+
+  h2
+    color: $notice-font-color
+    font-size: 6em

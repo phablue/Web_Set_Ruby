@@ -108,7 +108,7 @@
             chosenCards = data["chosenCards"];
             _this.remove(chosenCards);
             _this.recordInDisCards(chosenCards);
-            return $.when(_this.addNewCard(chosenCards)).done(function() {
+            return $.when(_this.addNewCard(data)).done(function() {
               return _this.checkGameOver();
             });
           };

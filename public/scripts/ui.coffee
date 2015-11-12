@@ -71,7 +71,7 @@ class UI
 
         @remove(chosenCards)
         @recordInDisCards(chosenCards)
-        $.when(@addNewCard(chosenCards)).done =>
+        $.when(@addNewCard(data)).done =>
           @checkGameOver()
     else
       $.when(@notice("No Set","Please, Keep Look")).done =>

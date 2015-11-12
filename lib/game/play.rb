@@ -1,9 +1,14 @@
+require_relative "board"
+require_relative "rules"
+
 module Game
   class Play
+    attr_accessor :board
+    attr_reader :rules
+
     def initialize
       @board = Game::Board.new
-      @face_up_cards = @board.initial_face_up_cards
-      @rules = Gane::Board.new(face_up_cards)
+      @rules = Gane::Board.new(@board)
     end
   end
 end

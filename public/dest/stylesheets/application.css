@@ -8,6 +8,10 @@ body {
     body {
       background: none; } }
 
+@media (min-width: 1200px) {
+  .container {
+    width: 95%; } }
+
 .warning {
   display: none; }
   @media only screen and (max-width: 1023px) {
@@ -41,6 +45,9 @@ body {
   @media only screen and (max-width: 1023px) {
     .board {
       display: none; } }
+  @media only screen and (min-width: 1400px) {
+    .board {
+      max-width: 1100px; } }
 
 .cards, .face-up-cards .card {
   background-color: #FFF;

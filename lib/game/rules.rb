@@ -21,7 +21,6 @@ module Game
           matches = @board.board_cards.select{ |card| card == standard }
 
           unless matches.empty?
-            puts [ @board.board_cards[i].values.join, @board.board_cards[j].values.join, matches[0].values.join ]
             return true
           end
         end

@@ -53,6 +53,7 @@ h1 {
   right: 0;
   width: 50%; }
   .notice h1 {
+    color: #FFF;
     font-size: 8em;
     margin-top: 25px; }
   .notice h2 {

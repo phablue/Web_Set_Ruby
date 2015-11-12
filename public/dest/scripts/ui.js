@@ -4,20 +4,27 @@
 
   UI = (function() {
     function UI() {
+      this.replaceChosenCardsBySet = bind(this.replaceChosenCardsBySet, this);
       this.resetBoardCardsBySet = bind(this.resetBoardCardsBySet, this);
       this.displayInitialCards = bind(this.displayInitialCards, this);
     }
 
     UI.prototype.config = function() {
-      return this.displayBoardCards();
+      return this.gamePlay();
+    };
+
+    UI.prototype.gamePlay = function() {
+      return $.when(this.displayBoardCards()).done((function(_this) {
+        return function() {
+          return $.when(_this.checkBoardCardsHasSet()).done(function() {
+            return _this.chooseCard();
+          });
+        };
+      })(this));
     };
 
     UI.prototype.displayBoardCards = function() {
-      return $.when($.getJSON("/game/start").done(this.displayInitialCards)).done((function(_this) {
-        return function() {
-          return _this.checkBoardCardsHasSet();
-        };
-      })(this));
+      return $.getJSON("/game/start").done(this.displayInitialCards);
     };
 
     UI.prototype.displayInitialCards = function(data) {
@@ -55,8 +62,56 @@
       }
     };
 
+    UI.prototype.chooseCard = function() {
+      var chosenCards, limit;
+      limit = 0;
+      chosenCards = [];
+      return $("[data-id='board-cards'").on("click", "[data-id='face-up']", (function(_this) {
+        return function(e) {
+          var card;
+          limit += 1;
+          _this.changeBorderColor(e.currentTarget);
+          card = $(e.currentTarget).data("name");
+          chosenCards.push(card);
+          if (limit === 3) {
+            _this.checkIsSet(chosenCards);
+            limit = 0;
+            return chosenCards = [];
+          }
+        };
+      })(this));
+    };
+
+    UI.prototype.checkIsSet = function(chosenCards) {
+      return $.post("/game/rules", {
+        choice: chosenCards
+      }).done(this.replaceChosenCardsBySet);
+    };
+
+    UI.prototype.replaceChosenCardsBySet = function(data) {
+      data = $.parseJSON(data);
+      if (data["set"]) {
+        return $.when(this.notice("Set", "Switch Set Cards")).done((function(_this) {
+          return function() {
+            var chosenCards;
+            chosenCards = data["chosenCards"];
+            _this.remove(chosenCards);
+            _this.recordInDisCards(chosenCards);
+            return $.when(_this.addNewCard(data)).done(function() {
+              return _this.checkBoardCardsHasSet();
+            });
+          };
+        })(this));
+      } else {
+        return $.when(this.notice("No Set", "Please, Keep Look")).done((function(_this) {
+          return function() {
+            return _this.resetBorderColor();
+          };
+        })(this));
+      }
+    };
+
     UI.prototype.addNewCard = function(data) {
-      console.log("hi");
       return _.each(data["newCards"], (function(_this) {
         return function(card) {
           return _this.setNewCard(_this.nameOf(card));
@@ -66,6 +121,26 @@
 
     UI.prototype.setNewCard = function(cardName) {
       return $("[data-id='board-cards']").append("<div class='card' data-id='face-up' data-name=" + cardName + " style='background-image: url(/images/" + cardName + ".png); width: 190px; height: 250px'></div>");
+    };
+
+    UI.prototype.remove = function(chosenCards) {
+      return _.each(chosenCards, (function(_this) {
+        return function(card) {
+          return $("[data-name=" + card + "]").remove();
+        };
+      })(this));
+    };
+
+    UI.prototype.recordInDisCards = function(chosenCards) {
+      return $("[data-id='dis-card'").append("<p> " + chosenCards + " </p>");
+    };
+
+    UI.prototype.changeBorderColor = function(chosenCard) {
+      return $(chosenCard).css("border", "5px solid #990100");
+    };
+
+    UI.prototype.resetBorderColor = function() {
+      return $("[data-id='face-up']").css("border", "0px");
     };
 
     UI.prototype.changeBoardCardSize = function() {

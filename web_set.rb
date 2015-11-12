@@ -31,3 +31,18 @@ get "/game/rules" do
     { set: false, newCards: new_cards }.to_json
   end
 end
+
+post "/game/rules" do
+  game = session[:game]
+  chosen_cards = params["choice"].sort
+
+  if game.rules.is_set?(chosen_cards)
+    puts "gu"
+    game.board.board_cards -= chosen_cards
+    new_cards = game.board.face_up_new_cards
+
+    { set: true, chosenCards: chosen_cards, newCards: new_cards }.to_json
+  else
+    { set: false }.to_json
+  end
+end

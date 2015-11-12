@@ -5,7 +5,7 @@ class UI
     @gameStart()
 
   gameStart: ->
-    $.get("/game/start").done =>
+    $.when($.get("/game/start")).done =>
       @gamePlay()
 
   gamePlay: ->

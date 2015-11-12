@@ -11,6 +11,7 @@ end
 
 get "/game/start" do
   session[:game] = Game::Play.new
+  status 200
 end
 
 get "/game/board" do

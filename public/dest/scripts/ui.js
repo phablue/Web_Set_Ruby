@@ -124,13 +124,13 @@
 
     UI.prototype.addNewCard = function(data) {
       if (_.isNull(data["newCards"])) {
+        return this.notice("No Cards In Deck", "");
+      } else {
         return _.each(data["newCards"], (function(_this) {
           return function(card) {
             return _this.setNewCard(_this.nameOf(card));
           };
         })(this));
-      } else {
-        return this.notice("No Cards In Deck", "");
       }
     };
 

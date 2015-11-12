@@ -79,10 +79,10 @@ class UI
 
   addNewCard: (data) ->
     if _.isNull(data["newCards"])
+      @notice("No Cards In Deck", "")
+    else
       _.each( data["newCards"], (card) =>
         @setNewCard(@nameOf(card)) )
-    else
-      @notice("No Cards In Deck", "")
 
   setNewCard: (cardName) ->
     $("[data-id='board-cards']").append(

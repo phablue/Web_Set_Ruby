@@ -74,6 +74,9 @@ body {
   height: 750px;
   margin: 50px 0;
   width: 150px; }
+  @media only screen and (max-width: 1023px) {
+    .dead-cards {
+      display: none; } }
   .dead-cards h4 {
     font-weight: 800;
     line-height: 1.5;

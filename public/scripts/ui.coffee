@@ -67,7 +67,8 @@ class UI
       @changeBorderColor(e.currentTarget)
 
       card = $(e.currentTarget).data("name")
-      chosenCards.push(card)
+      unless _.contains(chosenCards, card)
+        chosenCards.push(card)
 
       if (chosenCards.length) == 3
         @checkIsSet(chosenCards)

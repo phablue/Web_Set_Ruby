@@ -15,7 +15,7 @@
     };
 
     UI.prototype.gameStart = function() {
-      return $.get("/game/start").done((function(_this) {
+      return $.when($.get("/game/start")).done((function(_this) {
         return function() {
           return _this.gamePlay();
         };
@@ -108,7 +108,9 @@
           var card;
           _this.changeBorderColor(e.currentTarget);
           card = $(e.currentTarget).data("name");
-          chosenCards.push(card);
+          if (!_.contains(chosenCards, card)) {
+            chosenCards.push(card);
+          }
           if (chosenCards.length === 3) {
             _this.checkIsSet(chosenCards);
             return chosenCards = [];

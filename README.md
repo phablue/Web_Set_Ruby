@@ -1,9 +1,9 @@
 Web Solo Set Game
 ==================
 
-
 Please visit [the live application](http://setcardga.me/)
 ----------------------------------------------------------
+This application was built and tested with Google Chrome.
 
 
 ### About

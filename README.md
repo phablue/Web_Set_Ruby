@@ -1,6 +1,11 @@
 Web Solo Set Game
 ==================
 
+
+Please visit [the live application](http://setcardga.me/)
+----------------------------------------------------------
+
+
 ### About
 Set is a card game where players try to find cards that match in a particular way. This application allows players to play a solitaire version of set. Only screens larger than 1024px are currently supported.
 

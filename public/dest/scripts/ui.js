@@ -149,7 +149,7 @@
     };
 
     UI.prototype.addNewCard = function(data) {
-      if (_.isNull(data["newCards"])) {
+      if (_.isEmpty(data["newCards"])) {
         return this.notice("Deck is empty", "");
       } else {
         return _.each(data["newCards"], (function(_this) {

@@ -94,7 +94,7 @@ class UI
         @resetBorderColor()
 
   addNewCard: (data) ->
-    if _.isNull(data["newCards"])
+    if _.isEmpty(data["newCards"])
       @notice("Deck is empty", "")
     else
       _.each( data["newCards"], (card) =>

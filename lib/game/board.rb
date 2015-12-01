@@ -2,8 +2,7 @@ require "json"
 
 module Game
   class Board
-    attr_accessor :board_cards
-    attr_reader :deck
+    attr_accessor :board_cards, :deck
 
     def initialize
       @deck = shuffled_cards

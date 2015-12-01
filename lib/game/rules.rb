@@ -31,17 +31,29 @@ module Game
     def is_set?(chosen_cards)
       for i in 0...4
         cards_attr = get_attribute(chosen_cards, i)
-        return false unless is_same_or_different?(cards_attr)
+        return false unless valid_set(cards_attr)
       end
       true
     end
 
-    def is_same_or_different?(cards_attr)
+    def valid_set(cards_attr)
       cards_attr.size != 2
     end
 
     def get_attribute(cards, attr_index)
       [ cards[0][attr_index], cards[1][attr_index], cards[2][attr_index] ].uniq.join
+    end
+
+    def point_calculator(dead_cards)
+      point = 0
+      dead_cards.each do |card|
+        if card == "No Set"
+          point -= 1
+        else
+          point += 3
+        end
+      end
+      point
     end
 
     def game_over?

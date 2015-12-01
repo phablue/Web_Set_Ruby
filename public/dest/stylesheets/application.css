@@ -44,13 +44,13 @@ p {
 .board {
   display: inline-block;
   margin: 30px auto;
-  max-width: 750px; }
+  max-width: 650px; }
   @media only screen and (max-width: 1023px) {
     .board {
       display: none; } }
   @media only screen and (min-width: 1400px) {
     .board {
-      max-width: 1100px; } }
+      max-width: 1000px; } }
 
 .cards, .face-up-cards .card {
   background-color: #FFF;
@@ -59,9 +59,13 @@ p {
   background-size: contain;
   border-radius: 10px;
   box-shadow: 5px 5px 4px #B3B1B1;
-  height: 200px;
+  height: 150px;
   padding: 10px;
-  width: 140px; }
+  width: 100px; }
+  @media only screen and (min-width: 1400px) {
+    .cards, .face-up-cards .card {
+      height: 180px;
+      width: 120px; } }
 
 .face-up-cards .card {
   display: inline-block;
@@ -70,22 +74,27 @@ p {
     cursor: pointer; }
 
 .dead-cards {
-  background: url("/images/card-bg-img.png");
-  border-radius: 15px;
-  display: inline-block;
-  float: right;
-  height: 750px;
-  margin: 50px 0;
-  width: 150px; }
+  display: inline; }
+
+.dead-card, .dead-card-one, .dead-card-two {
+  background: #FFF;
+  border-radius: 5px;
+  height: 550px;
+  margin: 30px 0;
+  width: 140px; }
   @media only screen and (max-width: 1023px) {
-    .dead-cards {
+    .dead-card, .dead-card-one, .dead-card-two {
       display: none; } }
-  .dead-cards h4 {
+  .dead-card-one {
+    float: left; }
+  .dead-card-two {
+    float: right; }
+  .dead-card h4, .dead-card-one h4, .dead-card-two h4 {
     font-weight: 800;
     line-height: 1.5;
     padding: 5px 0;
     text-decoration: underline; }
-  .dead-cards p {
+  .dead-card p, .dead-card-one p, .dead-card-two p {
     font-size: 1.1em;
     font-weight: 500; }
 

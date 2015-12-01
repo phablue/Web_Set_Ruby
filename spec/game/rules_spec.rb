@@ -78,7 +78,8 @@ describe Game::Rules do
                         {"color"=>"P", "shape"=>"S", "shading"=>"E", "number"=>"2"} ]
 
       @board.board_cards = face_up_cards
-      @rules.has_set?
+
+      expect(@rules.has_set?).to be true
     end
 
     it "Return 'true', when a user choie is set" do
@@ -97,6 +98,64 @@ describe Game::Rules do
       user_choice = ["RDS1", "RDS2", "GDF3"]
 
       expect(@rules.is_set?(user_choice)).to be false
+    end
+  end
+
+  context "Chek the game over" do
+    it "Return 'true', when the game over" do
+      @board.deck = [ {"color"=>"R", "shape"=>"S", "shading"=>"E", "number"=>"3"},
+                      {"color"=>"P", "shape"=>"D", "shading"=>"F", "number"=>"3"},
+                      {"color"=>"R", "shape"=>"D", "shading"=>"S", "number"=>"1"},
+                      {"color"=>"P", "shape"=>"O", "shading"=>"F", "number"=>"2"},
+                      {"color"=>"R", "shape"=>"O", "shading"=>"F", "number"=>"2"},
+                      {"color"=>"P", "shape"=>"S", "shading"=>"E", "number"=>"3"},
+                      {"color"=>"G", "shape"=>"S", "shading"=>"F", "number"=>"3"},
+                      {"color"=>"G", "shape"=>"D", "shading"=>"F", "number"=>"1"},
+                      {"color"=>"G", "shape"=>"S", "shading"=>"S", "number"=>"3"},
+                      {"color"=>"P", "shape"=>"D", "shading"=>"E", "number"=>"2"},
+                      {"color"=>"G", "shape"=>"D", "shading"=>"F", "number"=>"3"},
+                      {"color"=>"P", "shape"=>"S", "shading"=>"E", "number"=>"2"} ]
+
+      @board.face_up_initial_cards
+
+      expect(@rules.has_set?).to be true
+
+      user_choice = @board.convert_to_hash(["RDS1", "PDE2", "GDF3"])
+      @board.board_cards -= user_choice
+
+      expect(@rules.game_over?).to be true
+    end
+
+    it "Return 'false', when the game over" do
+      @board.deck = [ {"color"=>"R", "shape"=>"S", "shading"=>"E", "number"=>"3"},
+                      {"color"=>"P", "shape"=>"D", "shading"=>"F", "number"=>"3"},
+                      {"color"=>"R", "shape"=>"D", "shading"=>"S", "number"=>"1"},
+                      {"color"=>"P", "shape"=>"O", "shading"=>"F", "number"=>"2"},
+                      {"color"=>"R", "shape"=>"O", "shading"=>"F", "number"=>"2"},
+                      {"color"=>"P", "shape"=>"S", "shading"=>"E", "number"=>"3"},
+                      {"color"=>"G", "shape"=>"S", "shading"=>"F", "number"=>"3"},
+                      {"color"=>"G", "shape"=>"D", "shading"=>"F", "number"=>"1"},
+                      {"color"=>"G", "shape"=>"S", "shading"=>"S", "number"=>"3"},
+                      {"color"=>"P", "shape"=>"D", "shading"=>"E", "number"=>"2"},
+                      {"color"=>"G", "shape"=>"D", "shading"=>"F", "number"=>"3"},
+                      {"color"=>"P", "shape"=>"D", "shading"=>"S", "number"=>"1"} ]
+
+      @board.face_up_initial_cards
+
+      expect(@rules.has_set?).to be true
+
+      user_choice = @board.convert_to_hash(["RDS1", "ROF2", "RSE3"])
+      @board.board_cards -= user_choice
+
+      expect(@rules.game_over?).to be false
+    end
+  end
+
+  context "Check point calculator 'Set', a player get 3 points, 'No Set' a player gets -1 point" do
+    it 'Return point is 8, when a player dead-cards are [["RDS1", "PDE2", "GDF3"], ["RDS1", "ROF2", "RSE3"], "No Set"]' do
+      dead_cards = [["RDS1", "PDE2", "GDF3"], ["RDS1", "ROF2", "RSE3"], "No Set"]
+
+      expect(@rules.point_calculator(dead_cards)).to eq 5
     end
   end
 end

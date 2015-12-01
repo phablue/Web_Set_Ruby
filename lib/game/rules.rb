@@ -45,15 +45,7 @@ module Game
     end
 
     def point_calculator(dead_cards)
-      point = 0
-      dead_cards.each do |card|
-        if card == "No Set"
-          point -= 1
-        else
-          point += 3
-        end
-      end
-      point
+      dead_cards.inject(0) { |points, card| card == "No Set" ? points - 1 : points + 3 }
     end
 
     def game_over?

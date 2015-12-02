@@ -25,7 +25,7 @@ end
 get "/game/rules" do
   game = session[:game]
 
-  if game.rules.has_set?
+  if game.rules.has_set?(game.board)
     { set: true }.to_json
   else
     new_cards = game.board.face_up_new_cards
@@ -51,7 +51,7 @@ end
 get "/game/end" do
   game = session[:game]
 
-  if game.rules.game_over?
+  if game.rules.game_over?(game.board)
     { gameOver: true }.to_json
   else
     { gameOver: false }.to_json

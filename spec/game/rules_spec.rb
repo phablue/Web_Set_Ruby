@@ -3,7 +3,7 @@ require "spec_helper"
 describe Game::Rules do
   before(:each) do
     @board = Game::Board.new
-    @rules = Game::Rules.new(@board)
+    @rules = Game::Rules.new
   end
 
   context "Check board of cards have 'set'" do
@@ -22,7 +22,7 @@ describe Game::Rules do
                         {"color"=>"P", "shape"=>"S", "shading"=>"E", "number"=>"2"} ]
 
       @board.board_cards = face_up_cards
-      expect(@rules.has_set?).to be true
+      expect(@rules.has_set?(@board)).to be true
     end
 
     it "Return 'true', when face-up cards have 'set'" do
@@ -40,7 +40,7 @@ describe Game::Rules do
                         {"color"=>"G", "shape"=>"D", "shading"=>"F", "number"=>"1"} ]
 
       @board.board_cards = face_up_cards
-      expect(@rules.has_set?).to be true
+      expect(@rules.has_set?(@board)).to be true
     end
 
     it "Return 'false', when face-up cards dont have 'set'" do
@@ -58,7 +58,7 @@ describe Game::Rules do
                         {"color"=>"R", "shape"=>"S", "shading"=>"S", "number"=>"3"} ]
 
       @board.board_cards = face_up_cards
-      expect(@rules.has_set?).to be false
+      expect(@rules.has_set?(@board)).to be false
     end
   end
 
@@ -79,7 +79,7 @@ describe Game::Rules do
 
       @board.board_cards = face_up_cards
 
-      expect(@rules.has_set?).to be true
+      expect(@rules.has_set?(@board)).to be true
     end
 
     it "Return 'true', when a user choie is set" do
@@ -118,12 +118,12 @@ describe Game::Rules do
 
       @board.face_up_initial_cards
 
-      expect(@rules.has_set?).to be true
+      expect(@rules.has_set?(@board)).to be true
 
       user_choice = @board.convert_to_hash(["RDS1", "PDE2", "GDF3"])
       @board.board_cards -= user_choice
 
-      expect(@rules.game_over?).to be true
+      expect(@rules.game_over?(@board)).to be true
     end
 
     it "Return 'false', when the game over" do
@@ -142,12 +142,12 @@ describe Game::Rules do
 
       @board.face_up_initial_cards
 
-      expect(@rules.has_set?).to be true
+      expect(@rules.has_set?(@board)).to be true
 
       user_choice = @board.convert_to_hash(["RDS1", "ROF2", "RSE3"])
       @board.board_cards -= user_choice
 
-      expect(@rules.game_over?).to be false
+      expect(@rules.game_over?(@board)).to be false
     end
   end
 

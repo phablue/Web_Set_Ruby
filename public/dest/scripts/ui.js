@@ -226,7 +226,7 @@
     };
 
     UI.prototype.turnNotice = function(title) {
-      return $("[data-id='turn-notice']").text(title).show().fadeOut(2000);
+      return $("[data-id='turn-notice']").text(title).show().fadeOut(3000);
     };
 
     UI.prototype.flashMessage = function(title) {

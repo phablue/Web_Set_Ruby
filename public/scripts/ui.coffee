@@ -149,7 +149,7 @@ class UI
     @flashMessage(title)
 
   turnNotice: (title) ->
-    $("[data-id='turn-notice']").text(title).show().fadeOut(2000)
+    $("[data-id='turn-notice']").text(title).show().fadeOut(3000)
 
   flashMessage: (title)->
     if title == "Game Over"

@@ -25,6 +25,7 @@ module Game
     end
 
     def is_set?(chosen_cards)
+      return false if chosen_cards.nil?
       for i in 0...4
         cards_attr = get_attribute(chosen_cards, i)
         return false unless valid_set(cards_attr)

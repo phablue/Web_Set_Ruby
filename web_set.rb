@@ -36,23 +36,39 @@ end
 
 post "/game/rules" do
   game = session[:game]
-  chosen_cards = params["choice"].sort
+  chosen_cards = params["choice"]
 
   if game.rules.is_set?(chosen_cards)
-    game.board.remove_from_board(chosen_cards)
+    game.board.remove_from_board(chosen_cards.sort)
     new_cards = game.board.face_up_new_cards
 
-    { set: true, chosenCards: chosen_cards, newCards: new_cards }.to_json
+    { set: true, chosenCards: chosen_cards, newCards: new_cards, currentPlayer: "player" }.to_json
   else
-    { set: false }.to_json
+    { set: false, currentPlayer: "player" }.to_json
   end
+end
+
+get "/game/computer" do
+  game = session[:game]
+
+  chosen_cards = game.computer.find_set(game.board)
+
+  game.board.remove_from_board(chosen_cards.sort)
+  new_cards = game.board.face_up_new_cards
+
+  { set: true, chosenCards: chosen_cards, newCards: new_cards, currentPlayer: "computer" }.to_json
 end
 
 get "/game/end" do
   game = session[:game]
+  player = params["player"]
+  computer = params["computer"]
 
   if game.rules.game_over?(game.board)
-    { gameOver: true }.to_json
+    player_point = game.rules.point_calculator(player)
+    computer_point = game.rules.point_calculator(computer)
+
+    { gameOver: true, playerPoint: player_point, computerPoint: computer_point }.to_json
   else
     { gameOver: false }.to_json
   end

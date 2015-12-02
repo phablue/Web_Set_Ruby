@@ -4,66 +4,54 @@
 
   UI = (function() {
     function UI() {
-      this.replaceChosenCardsBySet = bind(this.replaceChosenCardsBySet, this);
-      this.resetBoardCardsBySet = bind(this.resetBoardCardsBySet, this);
+      this.replaceChosenCards = bind(this.replaceChosenCards, this);
+      this.setBoard = bind(this.setBoard, this);
       this.displayInitialCards = bind(this.displayInitialCards, this);
-      this.finishGame = bind(this.finishGame, this);
+      this.game = new Game(this);
     }
 
     UI.prototype.config = function() {
-      return this.gameStart();
+      return this.game.start();
     };
 
-    UI.prototype.gameStart = function() {
-      return $.when($.get("/game/start")).done((function(_this) {
-        return function() {
-          return _this.gamePlay();
+    UI.prototype.endOfGame = function(data) {
+      this.notice("Game Over", this.gameOverMessage(data["computerPoint"], data["playerPoint"]));
+      $("[data-id='board-cards']").off("click", "[data-id='face-up']");
+      return this.restartNewGame();
+    };
+
+    UI.prototype.getPlayersDeadCardsList = function() {
+      return {
+        computer: this.getDeadCardsList("computer"),
+        player: this.getDeadCardsList("player")
+      };
+    };
+
+    UI.prototype.getDeadCardsList = function(currentPlayer) {
+      var deadCards;
+      deadCards = [];
+      _.each($("[data-id='dis-card-" + currentPlayer + "'"), (function(_this) {
+        return function(card) {
+          return deadCards << $(card).text();
         };
       })(this));
-    };
-
-    UI.prototype.gamePlay = function() {
-      return $.when(this.displayBoardCards()).done((function(_this) {
-        return function() {
-          return $.when(_this.checkBoardCardsHasSet()).done(function() {
-            return _this.chooseCard();
-          });
-        };
-      })(this));
-    };
-
-    UI.prototype.checkGameOver = function() {
-      return $.getJSON("/game/end").done(this.finishGame);
+      return deadCards;
     };
 
     UI.prototype.restartNewGame = function() {
       return $("[data-id='restart-game']").click((function(_this) {
         return function() {
           $("[data-id='restart-game']").unbind("click");
-          return $.get("/game/restart").done(function() {
-            return $.when(_this.resetGame()).done(function() {
-              return _this.gameStart();
-            });
-          });
+          return _this.game.restart();
         };
       })(this));
     };
 
-    UI.prototype.resetGame = function() {
+    UI.prototype.resetBoard = function() {
       $("[data-id='board-cards']").children().remove();
       $("[data-id='dis-card']").children("p").remove();
       $("[data-id='notice']").hide();
       return $("[data-id='restart-game']").hide();
-    };
-
-    UI.prototype.finishGame = function(data) {
-      if (data["gameOver"]) {
-        this.notice("Game Over", "Thanks for playing.");
-        $("[data-id='board-cards']").off("click", "[data-id='face-up']");
-        return this.restartNewGame();
-      } else {
-        return this.checkBoardCardsHasSet();
-      }
     };
 
     UI.prototype.displayBoardCards = function() {
@@ -82,89 +70,113 @@
       return $("[data-id='board-cards']").append("<div class='card' data-id='face-up' data-name=" + cardName + " style='background-image: url(/images/" + cardName + ".png);'></div>");
     };
 
-    UI.prototype.nameOf = function(card) {
-      return _.values(card).join("");
-    };
-
-    UI.prototype.checkBoardCardsHasSet = function() {
-      return $.getJSON("/game/rules").done(this.resetBoardCardsBySet);
-    };
-
-    UI.prototype.resetBoardCardsBySet = function(data) {
+    UI.prototype.setBoard = function(data) {
       if (!data["set"]) {
         return $.when(this.notice("No Sets on the board", "Dealing again.")).done((function(_this) {
           return function() {
-            return _this.addNewCard(data);
+            return _this.addNewCards(data);
           };
         })(this));
       }
     };
 
-    UI.prototype.chooseCard = function() {
+    UI.prototype.userChooseCard = function() {
       var chosenCards;
       chosenCards = [];
-      return $("[data-id='board-cards']").on("click", "[data-id='face-up']", (function(_this) {
-        return function(e) {
-          var card;
-          _this.changeBorderColor(e.currentTarget);
-          card = $(e.currentTarget).data("name");
-          if (!_.contains(chosenCards, card)) {
-            chosenCards.push(card);
-          }
-          if (chosenCards.length === 3) {
-            _this.checkIsSet(chosenCards);
-            return chosenCards = [];
-          }
+      return $.when(this.turnNotice("Your turn")).done((function(_this) {
+        return function() {
+          return $("[data-id='board-cards']").on("click", "[data-id='face-up']", function(e) {
+            var card;
+            _this.changeBorderColor(e.currentTarget);
+            card = $(e.currentTarget).data("name");
+            if (!_.contains(chosenCards, card)) {
+              chosenCards.push(card);
+            }
+            if (chosenCards.length === 3) {
+              $("[data-id='board-cards']").off("click", "[data-id='face-up']");
+              _this.game.checkIsSet(chosenCards);
+              return chosenCards = [];
+            }
+          });
         };
       })(this));
     };
 
-    UI.prototype.checkIsSet = function(chosenCards) {
-      return $.post("/game/rules", {
-        choice: chosenCards
-      }).done(this.replaceChosenCardsBySet);
+    UI.prototype.computerChooseCards = function() {
+      return $.when(this.turnNotice("Comnuter turn")).done((function(_this) {
+        return function() {
+          return $.get("/game/computer").done(_this.replaceChosenCards);
+        };
+      })(this));
     };
 
-    UI.prototype.replaceChosenCardsBySet = function(data) {
+    UI.prototype.replaceChosenCards = function(data) {
       data = $.parseJSON(data);
       if (data["set"]) {
-        return $.when(this.notice("Set", "Dealing new cards.")).done((function(_this) {
+        return $.when(this.replaceCards(data)).done((function(_this) {
           return function() {
-            var chosenCards;
-            chosenCards = data["chosenCards"];
-            _this.remove(chosenCards);
-            _this.recordInDisCards(chosenCards);
-            return $.when(_this.addNewCard(data)).done(function() {
-              return _this.checkGameOver();
+            return $.when(_this.game.checkGameOver()).done(function() {
+              return $.when(_this.game.checkBoardCardsHaveSet()).done(function() {
+                return _this.switchTurn(data["currentPlayer"]);
+              });
             });
           };
         })(this));
       } else {
-        return $.when(this.notice("No Set", "Please, keep looking")).done((function(_this) {
+        return $.when(this.resetCards(data["currentPlayer"])).done((function(_this) {
           return function() {
-            return _this.resetBorderColor();
+            return _this.switchTurn(data["currentPlayer"]);
           };
         })(this));
       }
     };
 
-    UI.prototype.addNewCard = function(data) {
+    UI.prototype.switchTurn = function(currentPlayer) {
+      if (currentPlayer === "computer") {
+        return this.userChooseCard();
+      } else {
+        return this.computerChooseCards();
+      }
+    };
+
+    UI.prototype.replaceCards = function(data) {
+      var chosenCards;
+      chosenCards = data["chosenCards"];
+      return $.when(this.notice("Set", "Dealing new cards.")).done((function(_this) {
+        return function() {
+          _this.removeCards(chosenCards);
+          _this.recordSetCards(chosenCards, data["currentPlayer"]);
+          return _this.addNewCards(data);
+        };
+      })(this));
+    };
+
+    UI.prototype.resetCards = function(currentPlayer) {
+      return $.when(this.notice("No Set", "Please, keep looking")).done((function(_this) {
+        return function() {
+          _this.resetBorderColor();
+          return _this.recordSetCards("No Set", currentPlayer);
+        };
+      })(this));
+    };
+
+    UI.prototype.addNewCards = function(data) {
       if (_.isEmpty(data["newCards"])) {
         return this.notice("Deck is empty", "");
       } else {
         return _.each(data["newCards"], (function(_this) {
           return function(card) {
-            return _this.setNewCard(_this.nameOf(card));
+            return _this.setNewCards(_this.nameOf(card));
           };
         })(this));
       }
     };
 
-    UI.prototype.setNewCard = function(cardName) {
-      return $("[data-id='board-cards']").append("<div class='card' data-id='face-up' data-name=" + cardName + " style='background-image: url(/images/" + cardName + ".png); width: 140px; height: 200px'></div>");
+    UI.prototype.setNewCards = function(cardName) {
+      return $("[data-id='board-cards']").append("<div class='card' data-id='face-up' data-name=" + cardName + " style='background-image: url(/images/" + cardName + ".png)'></div>");
     };
 
-    UI.prototype.remove = function(chosenCards) {
+    UI.prototype.removeCards = function(chosenCards) {
       return _.each(chosenCards, (function(_this) {
         return function(card) {
           return $("[data-name=" + card + "]").remove();
@@ -172,8 +184,12 @@
       })(this));
     };
 
-    UI.prototype.recordInDisCards = function(chosenCards) {
-      return $("[data-id='dis-card'").append("<p> " + chosenCards + " </p>");
+    UI.prototype.recordSetCards = function(chosenCards, currentPlayer) {
+      return $("[data-id='dis-card-" + currentPlayer + "'").append("<p> " + chosenCards + " </p>");
+    };
+
+    UI.prototype.nameOf = function(card) {
+      return _.values(card).join("");
     };
 
     UI.prototype.changeBorderColor = function(chosenCard) {
@@ -184,10 +200,24 @@
       return $("[data-id='face-up']").css("border", "0px");
     };
 
+    UI.prototype.gameOverMessage = function(computer, player) {
+      if (computer > player) {
+        return "Computer win";
+      } else if (computer < player) {
+        return "Player win";
+      } else {
+        return "End in a draw";
+      }
+    };
+
     UI.prototype.notice = function(title, message) {
       $("[data-id='title']").text(title);
       $("[data-id='message']").text(message);
       return this.flashMessage(title);
+    };
+
+    UI.prototype.turnNotice = function(title) {
+      return $("[data-id='turn-notice']").text(title).show().fadeOut(3500);
     };
 
     UI.prototype.flashMessage = function(title) {

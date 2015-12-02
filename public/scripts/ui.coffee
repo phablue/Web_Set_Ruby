@@ -1,41 +1,35 @@
 class UI
   constructor: ->
+    @game = new Game(this)
 
   config: ->
-    @gameStart()
+    @game.start()
 
-  gameStart: ->
-    $.when($.get("/game/start")).done =>
-      @gamePlay()
+  endOfGame: (data) ->
+    @notice("Game Over", @gameOverMessage(data["computerPoint"], data["playerPoint"]))
+    $("[data-id='board-cards']").off("click", "[data-id='face-up']")
+    @restartNewGame()
 
-  gamePlay: ->
-    $.when(@displayBoardCards()).done =>
-      $.when(@checkBoardCardsHasSet()).done =>
-        @chooseCard()
+  getPlayersDeadCardsList: ->
+    { computer: @getDeadCardsList("computer"), player: @getDeadCardsList("player") }
 
-  checkGameOver: ->
-    $.getJSON("/game/end").done(@finishGame)
+  getDeadCardsList: (currentPlayer) ->
+    deadCards = []
+    _.each($("[data-id='dis-card-#{currentPlayer}'"), (card) =>
+      deadCards << $(card).text()
+    )
+    deadCards
 
   restartNewGame: ->
     $("[data-id='restart-game']").click =>
       $("[data-id='restart-game']").unbind("click")
-      $.get("/game/restart").done =>
-        $.when(@resetGame()).done =>
-          @gameStart()
+      @game.restart()
 
-  resetGame: ->
+  resetBoard: ->
     $("[data-id='board-cards']").children().remove()
     $("[data-id='dis-card']").children("p").remove()
     $("[data-id='notice']").hide()
     $("[data-id='restart-game']").hide()
-
-  finishGame: (data) =>
-    if data["gameOver"]
-      @notice("Game Over", "Thanks for playing.")
-      $("[data-id='board-cards']").off("click", "[data-id='face-up']")
-      @restartNewGame()
-    else
-      @checkBoardCardsHasSet()
 
   displayBoardCards: ->
     $.getJSON("/game/board").done(@displayInitialCards)
@@ -49,69 +43,84 @@ class UI
       "<div class='card' data-id='face-up' data-name=#{cardName}
             style='background-image: url(/images/#{cardName}.png);'></div>")
 
-  nameOf: (card) ->
-    _.values(card).join("")
-
-  checkBoardCardsHasSet: ->
-    $.getJSON("/game/rules").done(@resetBoardCardsBySet)
-
-  resetBoardCardsBySet: (data) =>
+  setBoard: (data) =>
     unless data["set"]
       $.when( @notice("No Sets on the board", "Dealing again.") ).done =>
-        @addNewCard(data)
+        @addNewCards(data)
 
-  chooseCard: ->
+  userChooseCard: ->
     chosenCards = []
 
-    $("[data-id='board-cards']").on("click", "[data-id='face-up']", (e) =>
-      @changeBorderColor(e.currentTarget)
+    $.when( @turnNotice("Your turn") ).done =>
+      $("[data-id='board-cards']").on("click", "[data-id='face-up']", (e) =>
+        @changeBorderColor(e.currentTarget)
 
-      card = $(e.currentTarget).data("name")
-      unless _.contains(chosenCards, card)
-        chosenCards.push(card)
+        card = $(e.currentTarget).data("name")
+        unless _.contains(chosenCards, card)
+          chosenCards.push(card)
 
-      if (chosenCards.length) == 3
-        @checkIsSet(chosenCards)
-        chosenCards = []
-    )
+        if (chosenCards.length) == 3
+          $("[data-id='board-cards']").off("click", "[data-id='face-up']")
+          @game.checkIsSet(chosenCards)
+          chosenCards = []
+      )
 
-  checkIsSet: (chosenCards) ->
-    $.post("/game/rules", { choice: chosenCards }).done(@replaceChosenCardsBySet)
+  computerChooseCards: ->
+    $.when( @turnNotice("Comnuter turn") ).done =>
+      $.get("/game/computer").done(@replaceChosenCards)
 
-  replaceChosenCardsBySet: (data) =>
+  replaceChosenCards: (data) =>
     data = $.parseJSON(data)
 
     if data["set"]
-      $.when(@notice("Set","Dealing new cards.")).done =>
-        chosenCards = data["chosenCards"]
-
-        @remove(chosenCards)
-        @recordInDisCards(chosenCards)
-        $.when(@addNewCard(data)).done =>
-          @checkGameOver()
+      $.when( @replaceCards(data) ).done =>
+        $.when( @game.checkGameOver() ).done =>
+          $.when( @game.checkBoardCardsHaveSet() ).done =>
+            @switchTurn(data["currentPlayer"])
     else
-      $.when(@notice("No Set","Please, keep looking")).done =>
-        @resetBorderColor()
+      $.when( @resetCards(data["currentPlayer"]) ).done =>
+         @switchTurn(data["currentPlayer"])
 
-  addNewCard: (data) ->
+  switchTurn: (currentPlayer) ->
+    if currentPlayer == "computer"
+      @userChooseCard()
+    else
+      @computerChooseCards()
+
+  replaceCards: (data) ->
+    chosenCards = data["chosenCards"]
+
+    $.when(@notice("Set","Dealing new cards.")).done =>
+      @removeCards(chosenCards)
+      @recordSetCards(chosenCards, data["currentPlayer"])
+      @addNewCards(data)
+
+  resetCards: (currentPlayer) ->
+    $.when(@notice("No Set","Please, keep looking")).done =>
+      @resetBorderColor()
+      @recordSetCards("No Set", currentPlayer)
+
+  addNewCards: (data) ->
     if _.isEmpty(data["newCards"])
       @notice("Deck is empty", "")
     else
       _.each( data["newCards"], (card) =>
-        @setNewCard(@nameOf(card)) )
+        @setNewCards(@nameOf(card)) )
 
-  setNewCard: (cardName) ->
+  setNewCards: (cardName) ->
     $("[data-id='board-cards']").append(
       "<div class='card' data-id='face-up' data-name=#{cardName}
-            style='background-image: url(/images/#{cardName}.png);
-                   width: 140px; height: 200px'></div>")
+            style='background-image: url(/images/#{cardName}.png)'></div>")
 
-  remove: (chosenCards) ->
+  removeCards: (chosenCards) ->
     _.each(chosenCards, (card) =>
       $("[data-name=#{card}]").remove())
 
-  recordInDisCards: (chosenCards) ->
-    $("[data-id='dis-card'").append("<p> #{chosenCards} </p>")
+  recordSetCards: (chosenCards, currentPlayer) ->
+    $("[data-id='dis-card-#{currentPlayer}'").append("<p> #{chosenCards} </p>")
+
+  nameOf: (card) ->
+    _.values(card).join("")
 
   changeBorderColor: (chosenCard) ->
     $(chosenCard).css("border", "5px solid #990100")
@@ -119,10 +128,21 @@ class UI
   resetBorderColor: ->
     $("[data-id='face-up']").css("border", "0px")
 
+  gameOverMessage: (computer, player) ->
+    if computer > player
+      "Computer win"
+    else if computer < player
+      "Player win"
+    else
+      "End in a draw"
+
   notice: (title, message) ->
     $("[data-id='title']").text(title)
     $("[data-id='message']").text(message)
     @flashMessage(title)
+
+  turnNotice: (title) ->
+    $("[data-id='turn-notice']").text(title).show().fadeOut(3500)
 
   flashMessage: (title)->
     if title == "Game Over"

@@ -30,9 +30,9 @@
     UI.prototype.getDeadCardsList = function(currentPlayer) {
       var deadCards;
       deadCards = [];
-      _.each($("[data-id='dis-card-" + currentPlayer + "'"), (function(_this) {
+      _.each($("[data-id='dis-card-" + currentPlayer + "'] > p"), (function(_this) {
         return function(card) {
-          return deadCards << $(card).text();
+          return deadCards.push($(card).text());
         };
       })(this));
       return deadCards;
@@ -49,7 +49,9 @@
 
     UI.prototype.resetBoard = function() {
       $("[data-id='board-cards']").children().remove();
-      $("[data-id='dis-card']").children("p").remove();
+      $("[data-id='dis-card-computer']").children("p").remove();
+      $("[data-id='dis-card-player']").children("p").remove();
+      $("[data-id='turn-notice']").hide();
       $("[data-id='notice']").hide();
       return $("[data-id='restart-game']").hide();
     };
@@ -111,15 +113,14 @@
     };
 
     UI.prototype.replaceChosenCards = function(data) {
+      var def;
       data = $.parseJSON(data);
       if (data["set"]) {
-        return $.when(this.replaceCards(data)).done((function(_this) {
+        def = $.Deferred();
+        this.replaceCards(data, def);
+        return def.done((function(_this) {
           return function() {
-            return $.when(_this.game.checkGameOver()).done(function() {
-              return $.when(_this.game.checkBoardCardsHaveSet()).done(function() {
-                return _this.switchTurn(data["currentPlayer"]);
-              });
-            });
+            return _this.game.checkGameOver();
           };
         })(this));
       } else {
@@ -139,14 +140,14 @@
       }
     };
 
-    UI.prototype.replaceCards = function(data) {
+    UI.prototype.replaceCards = function(data, def) {
       var chosenCards;
       chosenCards = data["chosenCards"];
       return $.when(this.notice("Set", "Dealing new cards.")).done((function(_this) {
         return function() {
           _this.removeCards(chosenCards);
           _this.recordSetCards(chosenCards, data["currentPlayer"]);
-          return _this.addNewCards(data);
+          return _this.addNewCards(data, def);
         };
       })(this));
     };
@@ -160,13 +161,21 @@
       })(this));
     };
 
-    UI.prototype.addNewCards = function(data) {
+    UI.prototype.addNewCards = function(data, def) {
       if (_.isEmpty(data["newCards"])) {
-        return this.notice("Deck is empty", "");
+        return $.when(this.notice("Deck is empty", "")).done((function(_this) {
+          return function() {
+            return def.resolve();
+          };
+        })(this));
       } else {
-        return _.each(data["newCards"], (function(_this) {
+        return $.when(_.each(data["newCards"], (function(_this) {
           return function(card) {
             return _this.setNewCards(_this.nameOf(card));
+          };
+        })(this))).done((function(_this) {
+          return function() {
+            return def.resolve();
           };
         })(this));
       }
@@ -185,7 +194,7 @@
     };
 
     UI.prototype.recordSetCards = function(chosenCards, currentPlayer) {
-      return $("[data-id='dis-card-" + currentPlayer + "'").append("<p> " + chosenCards + " </p>");
+      return $("[data-id='dis-card-" + currentPlayer + "'").append("<p>" + chosenCards + "</p>");
     };
 
     UI.prototype.nameOf = function(card) {
@@ -217,7 +226,7 @@
     };
 
     UI.prototype.turnNotice = function(title) {
-      return $("[data-id='turn-notice']").text(title).show().fadeOut(3500);
+      return $("[data-id='turn-notice']").text(title).show().fadeOut(2000);
     };
 
     UI.prototype.flashMessage = function(title) {

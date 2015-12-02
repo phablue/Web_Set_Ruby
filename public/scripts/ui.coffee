@@ -15,8 +15,8 @@ class UI
 
   getDeadCardsList: (currentPlayer) ->
     deadCards = []
-    _.each($("[data-id='dis-card-#{currentPlayer}'"), (card) =>
-      deadCards << $(card).text()
+    _.each($("[data-id='dis-card-#{currentPlayer}'] > p"), (card) =>
+      deadCards.push($(card).text())
     )
     deadCards
 
@@ -27,7 +27,9 @@ class UI
 
   resetBoard: ->
     $("[data-id='board-cards']").children().remove()
-    $("[data-id='dis-card']").children("p").remove()
+    $("[data-id='dis-card-computer']").children("p").remove()
+    $("[data-id='dis-card-player']").children("p").remove()
+    $("[data-id='turn-notice']").hide()
     $("[data-id='notice']").hide()
     $("[data-id='restart-game']").hide()
 
@@ -73,10 +75,10 @@ class UI
     data = $.parseJSON(data)
 
     if data["set"]
-      $.when( @replaceCards(data) ).done =>
-        $.when( @game.checkGameOver() ).done =>
-          $.when( @game.checkBoardCardsHaveSet() ).done =>
-            @switchTurn(data["currentPlayer"])
+      def = $.Deferred()
+      @replaceCards(data, def)
+      def.done =>
+        @game.checkGameOver()
     else
       $.when( @resetCards(data["currentPlayer"]) ).done =>
          @switchTurn(data["currentPlayer"])
@@ -87,25 +89,30 @@ class UI
     else
       @computerChooseCards()
 
-  replaceCards: (data) ->
+  replaceCards: (data, def) ->
     chosenCards = data["chosenCards"]
 
     $.when(@notice("Set","Dealing new cards.")).done =>
       @removeCards(chosenCards)
       @recordSetCards(chosenCards, data["currentPlayer"])
-      @addNewCards(data)
+      @addNewCards(data, def)
 
   resetCards: (currentPlayer) ->
     $.when(@notice("No Set","Please, keep looking")).done =>
       @resetBorderColor()
       @recordSetCards("No Set", currentPlayer)
 
-  addNewCards: (data) ->
+  addNewCards: (data, def) ->
     if _.isEmpty(data["newCards"])
-      @notice("Deck is empty", "")
+      $.when( @notice("Deck is empty", "") ).done =>
+        def.resolve()
     else
-      _.each( data["newCards"], (card) =>
-        @setNewCards(@nameOf(card)) )
+      $.when(
+        _.each( data["newCards"], (card) =>
+          @setNewCards(@nameOf(card))
+        )
+      ).done =>
+        def.resolve()
 
   setNewCards: (cardName) ->
     $("[data-id='board-cards']").append(
@@ -117,7 +124,7 @@ class UI
       $("[data-name=#{card}]").remove())
 
   recordSetCards: (chosenCards, currentPlayer) ->
-    $("[data-id='dis-card-#{currentPlayer}'").append("<p> #{chosenCards} </p>")
+    $("[data-id='dis-card-#{currentPlayer}'").append("<p>#{chosenCards}</p>")
 
   nameOf: (card) ->
     _.values(card).join("")
@@ -142,7 +149,7 @@ class UI
     @flashMessage(title)
 
   turnNotice: (title) ->
-    $("[data-id='turn-notice']").text(title).show().fadeOut(3500)
+    $("[data-id='turn-notice']").text(title).show().fadeOut(2000)
 
   flashMessage: (title)->
     if title == "Game Over"

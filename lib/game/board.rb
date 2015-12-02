@@ -6,6 +6,18 @@ module Game
 
     def initialize
       @deck = shuffled_cards
+      @deck = [ {"color"=>"R", "shape"=>"S", "shading"=>"E", "number"=>"3"},
+                        {"color"=>"P", "shape"=>"D", "shading"=>"F", "number"=>"3"},
+                        {"color"=>"R", "shape"=>"D", "shading"=>"S", "number"=>"1"},
+                        {"color"=>"P", "shape"=>"O", "shading"=>"F", "number"=>"2"},
+                        {"color"=>"R", "shape"=>"O", "shading"=>"F", "number"=>"2"},
+                        {"color"=>"P", "shape"=>"S", "shading"=>"E", "number"=>"3"},
+                        {"color"=>"G", "shape"=>"S", "shading"=>"F", "number"=>"3"},
+                        {"color"=>"G", "shape"=>"D", "shading"=>"F", "number"=>"1"},
+                        {"color"=>"G", "shape"=>"S", "shading"=>"S", "number"=>"3"},
+                        {"color"=>"P", "shape"=>"D", "shading"=>"E", "number"=>"2"},
+                        {"color"=>"G", "shape"=>"D", "shading"=>"F", "number"=>"3"},
+                        {"color"=>"P", "shape"=>"S", "shading"=>"E", "number"=>"2"} ]
       @board_cards = []
     end
 
@@ -45,7 +57,7 @@ module Game
     end
 
     def remove_from_board(cards)
-      @board_cards -= convert_to_hash(cards)
+      @board_cards -= convert_to_hash(cards.sort)
     end
 
     def convert_to_hash(cards)

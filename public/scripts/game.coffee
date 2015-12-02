@@ -15,7 +15,11 @@ class Game
     $.getJSON("/game/end", @ui.getPlayersDeadCardsList()).done(@finish)
 
   finish: (data) =>
-    @ui.endOfGame(data) if data["gameOver"]
+    if data["gameOver"]
+      @ui.endOfGame(data)
+    else
+      $.when( @checkBoardCardsHaveSet() ).done =>
+        @ui.switchTurn(data["currentPlayer"])
 
   restart: ->
     $.get("/game/restart").done =>

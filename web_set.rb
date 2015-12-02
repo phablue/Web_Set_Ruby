@@ -39,7 +39,7 @@ post "/game/rules" do
   chosen_cards = params["choice"]
 
   if game.rules.is_set?(chosen_cards)
-    game.board.remove_from_board(chosen_cards.sort)
+    game.board.remove_from_board(chosen_cards)
     new_cards = game.board.face_up_new_cards
 
     { set: true, chosenCards: chosen_cards, newCards: new_cards, currentPlayer: "player" }.to_json
@@ -53,7 +53,7 @@ get "/game/computer" do
 
   chosen_cards = game.computer.find_set(game.board)
 
-  game.board.remove_from_board(chosen_cards.sort)
+  game.board.remove_from_board(chosen_cards)
   new_cards = game.board.face_up_new_cards
 
   { set: true, chosenCards: chosen_cards, newCards: new_cards, currentPlayer: "computer" }.to_json

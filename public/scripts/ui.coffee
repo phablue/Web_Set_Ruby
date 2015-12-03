@@ -68,7 +68,7 @@ class UI
       )
 
   computerChooseCards: ->
-    $.when( @turnNotice("Comnuter turn") ).done =>
+    $.when( @turnNotice("Computer turn") ).done =>
       $.get("/game/computer").done(@markComputerChoice)
 
   markComputerChoice: (data) =>

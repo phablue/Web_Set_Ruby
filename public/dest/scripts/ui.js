@@ -106,7 +106,7 @@
     };
 
     UI.prototype.computerChooseCards = function() {
-      return $.when(this.turnNotice("Comnuter turn")).done((function(_this) {
+      return $.when(this.turnNotice("Computer turn")).done((function(_this) {
         return function() {
           return $.get("/game/computer").done(_this.markComputerChoice);
         };

@@ -69,7 +69,14 @@ class UI
 
   computerChooseCards: ->
     $.when( @turnNotice("Comnuter turn") ).done =>
-      $.get("/game/computer").done(@replaceChosenCards)
+      $.get("/game/computer").done(@markComputerChoice)
+
+  markComputerChoice: (data) =>
+    chosenCards = $.parseJSON(data)["chosenCards"]
+
+    $.when( _.each( chosenCards, (card) =>
+      $("[data-name=#{card}]").css("border", "5px solid #F2A115") ) ).done =>
+      @replaceChosenCards(data)
 
   replaceChosenCards: (data) =>
     data = $.parseJSON(data)
@@ -78,41 +85,41 @@ class UI
       def = $.Deferred()
       @replaceCards(data, def)
       def.done =>
-        @game.checkGameOver()
+        $.when( @game.checkGameOver() ).done =>
+          @switchTurn(data["currentPlayer"])
     else
       $.when( @resetCards(data["currentPlayer"]) ).done =>
-         @switchTurn(data["currentPlayer"])
+        @switchTurn(data["currentPlayer"])
+
 
   switchTurn: (currentPlayer) ->
     if currentPlayer == "computer"
-      @userChooseCard()
+      $.when( @userChooseCard() ).done =>
+        @game.checkBoardCardsHaveSet()
     else
-      @computerChooseCards()
+      $.when ( @computerChooseCards() ).done =>
+        @game.checkBoardCardsHaveSet()
 
   replaceCards: (data, def) ->
     chosenCards = data["chosenCards"]
 
-    $.when(@notice("Set","Dealing new cards.")).done =>
+    $.when( @notice("Set","Dealing new cards.")).done =>
       @removeCards(chosenCards)
       @recordSetCards(chosenCards, data["currentPlayer"])
-      @addNewCards(data, def)
+      $.when( @addNewCards(data) ).done =>
+        def.resolve()
 
   resetCards: (currentPlayer) ->
-    $.when(@notice("No Set","Please, keep looking")).done =>
+    $.when( @notice("No Set","Please, keep looking")).done =>
       @resetBorderColor()
       @recordSetCards("No Set", currentPlayer)
 
-  addNewCards: (data, def) ->
+  addNewCards: (data) ->
     if _.isEmpty(data["newCards"])
-      $.when( @notice("Deck is empty", "") ).done =>
-        def.resolve()
+      @notice("Deck is empty", "")
     else
-      $.when(
-        _.each( data["newCards"], (card) =>
-          @setNewCards(@nameOf(card))
-        )
-      ).done =>
-        def.resolve()
+       _.each( data["newCards"], (card) =>
+        @setNewCards(@nameOf(card)) )
 
   setNewCards: (cardName) ->
     $("[data-id='board-cards']").append(

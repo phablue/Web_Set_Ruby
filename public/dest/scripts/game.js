@@ -33,12 +33,6 @@
     Game.prototype.finish = function(data) {
       if (data["gameOver"]) {
         return this.ui.endOfGame(data);
-      } else {
-        return $.when(this.checkBoardCardsHaveSet()).done((function(_this) {
-          return function() {
-            return _this.ui.switchTurn(data["currentPlayer"]);
-          };
-        })(this));
       }
     };
 

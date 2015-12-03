@@ -5,6 +5,7 @@
   UI = (function() {
     function UI() {
       this.replaceChosenCards = bind(this.replaceChosenCards, this);
+      this.markComputerChoice = bind(this.markComputerChoice, this);
       this.setBoard = bind(this.setBoard, this);
       this.displayInitialCards = bind(this.displayInitialCards, this);
       this.game = new Game(this);
@@ -107,7 +108,21 @@
     UI.prototype.computerChooseCards = function() {
       return $.when(this.turnNotice("Comnuter turn")).done((function(_this) {
         return function() {
-          return $.get("/game/computer").done(_this.replaceChosenCards);
+          return $.get("/game/computer").done(_this.markComputerChoice);
+        };
+      })(this));
+    };
+
+    UI.prototype.markComputerChoice = function(data) {
+      var chosenCards;
+      chosenCards = $.parseJSON(data)["chosenCards"];
+      return $.when(_.each(chosenCards, (function(_this) {
+        return function(card) {
+          return $("[data-name=" + card + "]").css("border", "5px solid #F2A115");
+        };
+      })(this))).done((function(_this) {
+        return function() {
+          return _this.replaceChosenCards(data);
         };
       })(this));
     };
@@ -120,7 +135,9 @@
         this.replaceCards(data, def);
         return def.done((function(_this) {
           return function() {
-            return _this.game.checkGameOver();
+            return $.when(_this.game.checkGameOver()).done(function() {
+              return _this.switchTurn(data["currentPlayer"]);
+            });
           };
         })(this));
       } else {
@@ -134,9 +151,17 @@
 
     UI.prototype.switchTurn = function(currentPlayer) {
       if (currentPlayer === "computer") {
-        return this.userChooseCard();
+        return $.when(this.userChooseCard()).done((function(_this) {
+          return function() {
+            return _this.game.checkBoardCardsHaveSet();
+          };
+        })(this));
       } else {
-        return this.computerChooseCards();
+        return $.when((this.computerChooseCards()).done((function(_this) {
+          return function() {
+            return _this.game.checkBoardCardsHaveSet();
+          };
+        })(this)));
       }
     };
 
@@ -147,7 +172,9 @@
         return function() {
           _this.removeCards(chosenCards);
           _this.recordSetCards(chosenCards, data["currentPlayer"]);
-          return _this.addNewCards(data, def);
+          return $.when(_this.addNewCards(data)).done(function() {
+            return def.resolve();
+          });
         };
       })(this));
     };
@@ -161,21 +188,13 @@
       })(this));
     };
 
-    UI.prototype.addNewCards = function(data, def) {
+    UI.prototype.addNewCards = function(data) {
       if (_.isEmpty(data["newCards"])) {
-        return $.when(this.notice("Deck is empty", "")).done((function(_this) {
-          return function() {
-            return def.resolve();
-          };
-        })(this));
+        return this.notice("Deck is empty", "");
       } else {
-        return $.when(_.each(data["newCards"], (function(_this) {
+        return _.each(data["newCards"], (function(_this) {
           return function(card) {
             return _this.setNewCards(_this.nameOf(card));
-          };
-        })(this))).done((function(_this) {
-          return function() {
-            return def.resolve();
           };
         })(this));
       }

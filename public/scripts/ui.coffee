@@ -6,8 +6,8 @@ class UI
     @game.start()
 
   endOfGame: (data) ->
-    @notice("Game Over", @gameOverMessage(data["computerPoint"], data["playerPoint"]))
     $("[data-id='board-cards']").off("click", "[data-id='face-up']")
+    @notice("Game Over", @gameOverMessage(data["computerPoint"], data["playerPoint"]))
     @restartNewGame()
 
   getPlayersDeadCardsList: ->
@@ -85,20 +85,10 @@ class UI
       def = $.Deferred()
       @replaceCards(data, def)
       def.done =>
-        $.when( @game.checkGameOver() ).done =>
-          @switchTurn(data["currentPlayer"])
+        @game.checkGameOver()
     else
       $.when( @resetCards(data["currentPlayer"]) ).done =>
-        @switchTurn(data["currentPlayer"])
-
-
-  switchTurn: (currentPlayer) ->
-    if currentPlayer == "computer"
-      $.when( @userChooseCard() ).done =>
-        @game.checkBoardCardsHaveSet()
-    else
-      $.when ( @computerChooseCards() ).done =>
-        @game.checkBoardCardsHaveSet()
+        @game.switchTurn(data["currentPlayer"])
 
   replaceCards: (data, def) ->
     chosenCards = data["chosenCards"]
@@ -163,6 +153,6 @@ class UI
       $("[data-id='notice']").show()
       $("[data-id='restart-game']").show()
     else
-      $("[data-id='notice']").show().fadeOut(3000)
+      $("[data-id='notice']").show().fadeOut(2500)
 
 window.UI = UI

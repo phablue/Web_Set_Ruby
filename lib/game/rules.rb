@@ -42,6 +42,7 @@ module Game
     end
 
     def point_calculator(dead_cards)
+      return 0 if dead_cards.nil?
       dead_cards.inject(0) { |points, card| card == "No Set" ? points - 1 : points + 3 }
     end
 

@@ -17,6 +17,16 @@ class Game
   finish: (data) =>
     if data["gameOver"]
       @ui.endOfGame(data)
+    else
+      @switchTurn(data["currentPlayer"])
+
+  switchTurn: (currentPlayer) ->
+    if currentPlayer == "computer"
+      $.when( @ui.userChooseCard() ).done =>
+        @checkBoardCardsHaveSet()
+    else
+      $.when ( @ui.computerChooseCards() ).done =>
+        @checkBoardCardsHaveSet()
 
   restart: ->
     $.get("/game/restart").done =>

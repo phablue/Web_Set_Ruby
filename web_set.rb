@@ -37,6 +37,7 @@ end
 post "/game/rules" do
   game = session[:game]
   chosen_cards = params["choice"]
+  session[:current_plyaer] = "player"
 
   if game.rules.is_set?(chosen_cards)
     game.board.remove_from_board(chosen_cards)
@@ -50,6 +51,7 @@ end
 
 get "/game/computer" do
   game = session[:game]
+  session[:current_plyaer] = "computer"
 
   chosen_cards = game.computer.find_set(game.board)
 
@@ -61,6 +63,7 @@ end
 
 get "/game/end" do
   game = session[:game]
+  current_player = session[:current_plyaer]
   player = params["player"]
   computer = params["computer"]
 
@@ -70,7 +73,7 @@ get "/game/end" do
 
     { gameOver: true, playerPoint: player_point, computerPoint: computer_point }.to_json
   else
-    { gameOver: false }.to_json
+    { gameOver: false, currentPlayer: current_player }.to_json
   end
 end
 

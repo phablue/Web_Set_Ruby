@@ -33,6 +33,24 @@
     Game.prototype.finish = function(data) {
       if (data["gameOver"]) {
         return this.ui.endOfGame(data);
+      } else {
+        return this.switchTurn(data["currentPlayer"]);
+      }
+    };
+
+    Game.prototype.switchTurn = function(currentPlayer) {
+      if (currentPlayer === "computer") {
+        return $.when(this.ui.userChooseCard()).done((function(_this) {
+          return function() {
+            return _this.checkBoardCardsHaveSet();
+          };
+        })(this));
+      } else {
+        return $.when((this.ui.computerChooseCards()).done((function(_this) {
+          return function() {
+            return _this.checkBoardCardsHaveSet();
+          };
+        })(this)));
       }
     };
 

@@ -16,8 +16,8 @@
     };
 
     UI.prototype.endOfGame = function(data) {
-      this.notice("Game Over", this.gameOverMessage(data["computerPoint"], data["playerPoint"]));
       $("[data-id='board-cards']").off("click", "[data-id='face-up']");
+      this.notice("Game Over", this.gameOverMessage(data["computerPoint"], data["playerPoint"]));
       return this.restartNewGame();
     };
 
@@ -135,33 +135,15 @@
         this.replaceCards(data, def);
         return def.done((function(_this) {
           return function() {
-            return $.when(_this.game.checkGameOver()).done(function() {
-              return _this.switchTurn(data["currentPlayer"]);
-            });
+            return _this.game.checkGameOver();
           };
         })(this));
       } else {
         return $.when(this.resetCards(data["currentPlayer"])).done((function(_this) {
           return function() {
-            return _this.switchTurn(data["currentPlayer"]);
+            return _this.game.switchTurn(data["currentPlayer"]);
           };
         })(this));
-      }
-    };
-
-    UI.prototype.switchTurn = function(currentPlayer) {
-      if (currentPlayer === "computer") {
-        return $.when(this.userChooseCard()).done((function(_this) {
-          return function() {
-            return _this.game.checkBoardCardsHaveSet();
-          };
-        })(this));
-      } else {
-        return $.when((this.computerChooseCards()).done((function(_this) {
-          return function() {
-            return _this.game.checkBoardCardsHaveSet();
-          };
-        })(this)));
       }
     };
 
@@ -253,7 +235,7 @@
         $("[data-id='notice']").show();
         return $("[data-id='restart-game']").show();
       } else {
-        return $("[data-id='notice']").show().fadeOut(3000);
+        return $("[data-id='notice']").show().fadeOut(2500);
       }
     };
 

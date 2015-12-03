@@ -45,7 +45,7 @@ module Game
     end
 
     def remove_from_board(cards)
-      @board_cards -= convert_to_hash(cards.sort)
+      @board_cards -= convert_to_hash(cards)
     end
 
     def convert_to_hash(cards)

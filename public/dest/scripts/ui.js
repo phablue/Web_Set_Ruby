@@ -162,7 +162,7 @@
     };
 
     UI.prototype.resetCards = function(currentPlayer) {
-      return $.when(this.notice("No Set", "Please, keep looking")).done((function(_this) {
+      return $.when(this.notice("No Set", "")).done((function(_this) {
         return function() {
           _this.resetBorderColor();
           return _this.recordSetCards("No Set", currentPlayer);

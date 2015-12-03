@@ -93,14 +93,14 @@ class UI
   replaceCards: (data, def) ->
     chosenCards = data["chosenCards"]
 
-    $.when( @notice("Set","Dealing new cards.")).done =>
+    $.when( @notice("Set","Dealing new cards.") ).done =>
       @removeCards(chosenCards)
       @recordSetCards(chosenCards, data["currentPlayer"])
       $.when( @addNewCards(data) ).done =>
         def.resolve()
 
   resetCards: (currentPlayer) ->
-    $.when( @notice("No Set","Please, keep looking")).done =>
+    $.when( @notice("No Set","") ).done =>
       @resetBorderColor()
       @recordSetCards("No Set", currentPlayer)
 
